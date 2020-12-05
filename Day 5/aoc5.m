@@ -5,8 +5,6 @@
 
 clear variables; close all; clc;
 
-% Task 1 - Look through all and find highest seat ID
-
 maxRowNo = 127;
 minRowNo = 0;
 maxSeatNo = 7;
@@ -41,11 +39,10 @@ while ~feof(fid)
   
   seatID(j) = seatRow(1)*8+seatCol(1);
   
-  if maxSeatID < seatID(j)
-    maxSeatID = seatID(j);
-  end
-  
 end
+
+% Task 1
+maxSeatID = max(seatID);
 
 % Task 2
 sortedSeatID = sort(seatID);
