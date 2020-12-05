@@ -9,7 +9,6 @@ maxRowNo = 127;
 minRowNo = 0;
 maxSeatNo = 7;
 minSeatNo = 0;
-maxSeatID = 0;
 j = 0;
 
 fid = fopen('aoc5_input.txt', 'r');
