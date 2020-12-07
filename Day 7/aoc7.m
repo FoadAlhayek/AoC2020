@@ -9,10 +9,10 @@ fid = fopen('aoc7_input.txt', 'r');
 
 % Initialize
 colorInfo = struct([]);
-searchInfo = struct('match', []);
+searchQueue = struct('match', []);
 currentSearch = 'shiny gold';
 i = 1;
-j = 1;
+run = 1;
 
 % Search through all unique bags
 tic
@@ -25,11 +25,17 @@ while ~isempty(currentSearch)
   otherColors = readline((splitIndex + 8):end);  % 8 char for contain & ws
   
   otherColorInfo = regexp(otherColors,'\w*.\w*.(?= bag)','match');
+  
+  % This if-statement is for task 2
+  if run == 1
+    amountInfo = regexp(readline,'\d+','match');
+    currentInfo = struct('color', otherColorInfo, 'amount', amountInfo);
+    colorInfo(1).(currentColor) = currentInfo;
+  end
 
   if any(strcmp(otherColorInfo, currentSearch))
-    % Only store unique colors
-    if ~any(strcmp({searchInfo.match}, currentColor))
-      searchInfo(i).match = currentColor;
+    if ~any(strcmp({searchQueue.match}, currentColor))  % Unique check
+      searchQueue(i).match = currentColor;
       i = i + 1;
     end
   end
@@ -37,8 +43,8 @@ while ~isempty(currentSearch)
   % Reset and re-search
   if feof(fid)
     try 
-      currentSearch = regexprep(searchInfo(j).match, '_', ' ');
-      j = j + 1;
+      currentSearch = regexprep(searchQueue(run).match, '_', ' ');
+      run = run + 1;
       frewind(fid);
     catch
       break;
@@ -48,6 +54,49 @@ while ~isempty(currentSearch)
 end
 toc
 
+nUniqueBags = size(searchQueue, 2);
+
+% Task 2
+% Similar as task 1 but we search from the other end instead
+frewind(fid);
+searchQueue = struct('match', []);
+currentSearch = 'shiny gold';
+i = 1;
+run = 1;
+
+tic
+while ~isempty(currentSearch)
+  readline = fgetl(fid);
+  splitIndex = regexp(readline, 'contain');
+  
+  % Rewrite so struct can handle it
+  currentColor = regexprep(readline(1:(splitIndex - 7)), '\s', '_'); 
+  otherColors = readline((splitIndex + 8):end);  % 8 char for contain & ws
+  
+  otherColorInfo = regexp(otherColors,'\w*.\w*.(?= bag)','match');
+  
+  if any(strcmp(currentColor, currentSearch))
+    if ~any(strcmp({searchQueue.match}, currentColor))  % Unique check
+      searchQueue(i).match = currentColor;
+      i = i + 1;
+    end
+  end
+  
+  % Reset and re-search
+  if feof(fid)
+    try 
+      currentSearch = regexprep(searchQueue(run).match, '_', ' ');
+      run = run + 1;
+      frewind(fid);
+    catch
+      break;
+    end
+  end
+  
+  amountInfo = regexp(readline,'\d+','match');
+end
+toc
+
 fclose(fid);
 % 261
-fprintf('Task 1: %d\n', size(searchInfo, 2))
+fprintf('Task 1: %d\n', nUniqueBags)
